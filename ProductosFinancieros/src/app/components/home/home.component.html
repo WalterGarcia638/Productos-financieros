@@ -1,89 +1,111 @@
 <div class="container">
+    
     <div class="header">
         <h1 class="title">BANCO</h1>
-        <button class="add-button">Agregar</button>
-    </div>
+        <button class="add-button" (click)="openModal()">Agregar</button>
+      </div>
+
     <div class="search-container">
-        <input type="text" class="search-box" placeholder="Search...">
+      <input
+        type="text"
+        class="search-box"
+        placeholder="Buscar producto..."
+        [(ngModel)]="searchTerm"
+      />
     </div>
     <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Logo</th>
-                    <th>Nombre del producto</th>
-                    <th>Descripción</th>
-                    <th>Fecha de liberación</th>
-                    <th>Fecha de reestructuración</th>
-                    <th>Editar</th>
-                    <th>Eliminar</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div class="logo">JG</div>
-                    </td>
-                    <td>Nombre del producto</td>
-                    <td>Descripción</td>
-                    <td>01/01/2000</td>
-                    <td>01/01/2001</td>
-                    <td><button class="edit-button">Editar</button></td>
-                    <td><button class="delete-button">Eliminar</button></td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="logo">JG</div>
-                    </td>
-                    <td>Nombre del producto</td>
-                    <td>Descripción</td>
-                    <td>01/01/2000</td>
-                    <td>01/01/2001</td>
-                    <td><button class="edit-button">Editar</button></td>
-                    <td><button class="delete-button">Eliminar</button></td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="logo">JG</div>
-                    </td>
-                    <td>Nombre del producto</td>
-                    <td>Descripción</td>
-                    <td>01/01/2000</td>
-                    <td>01/01/2001</td>
-                    <td><button class="edit-button">Editar</button></td>
-                    <td><button class="delete-button">Eliminar</button></td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="logo">JG</div>
-                    </td>
-                    <td>Nombre del producto</td>
-                    <td>Descripción</td>
-                    <td>01/01/2000</td>
-                    <td>01/01/2001</td>
-                    <td><button class="edit-button">Editar</button></td>
-                    <td><button class="delete-button">Eliminar</button></td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="logo">JG</div>
-                    </td>
-                    <td>Nombre del producto</td>
-                    <td>Descripción</td>
-                    <td>01/01/2000</td>
-                    <td>01/01/2001</td>
-                    <td><button class="edit-button">Editar</button></td>
-                    <td><button class="delete-button">Eliminar</button></td>
-                </tr>
-            </tbody>
-        </table>
+      <table>
+        <thead>
+          <tr>
+            <th>Logo</th>
+            <th>Nombre del producto</th>
+            <th>Descripción</th>
+            <th>Fecha de liberación</th>
+            <th>Fecha de reestructuración</th>
+            <th>Editar</th>
+            <th>Eliminar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of filteredProducts">
+            <td>
+              <img [src]="product.logo" alt="{{ product.name }}" class="logo-img">
+            </td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.description }}</td>
+            <td>{{ product.date_release | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ product.date_revision | date: 'dd/MM/yyyy' }}</td>
+            <td><button class="edit-button">Editar</button></td>
+            <td><button (click)="openDeleteModal(product)" class="delete-button">Eliminar</button></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
     <div class="pagination">
-        <span>5 Resultados</span>
-        <select>
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-        </select>
+      <span>{{ filteredProducts.length }} Resultados</span>
+      <select>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+      </select>
     </div>
-</div>
+  </div>
+
+  <!-- Modal personalizado -->
+  <div class="custom-modal" *ngIf="showModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Formulario de Registro</h2>
+        <button class="close-button" (click)="closeModal()">✖</button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="submitForm()">
+          <div class="form-group">
+            <label for="id">ID</label>
+            <input type="text" id="id" [(ngModel)]="product.id" name="id" required />
+            <span *ngIf="!product.id">ID no válido!</span>
+          </div>
+          <div class="form-group">
+            <label for="name">Nombre</label>
+            <input type="text" id="name" [(ngModel)]="product.name" name="name" required />
+          </div>
+          <div class="form-group">
+            <label for="description">Descripción</label>
+            <input type="text" id="description" [(ngModel)]="product.description" name="description" required />
+          </div>
+          <div class="form-group">
+            <label for="logo">Logo (URL)</label>
+            <input type="text" id="logo" [(ngModel)]="product.logo" name="logo" required />
+          </div>
+          <div class="form-group">
+            <label for="date_release">Fecha Liberación</label>
+            <input type="date" id="date_release" [(ngModel)]="product.date_release" name="date_release" required />
+          </div>
+          <div class="form-group">
+            <label for="date_revision">Fecha Revisión</label>
+            <input type="date" id="date_revision" [(ngModel)]="product.date_revision" name="date_revision" required />
+          </div>
+          <div class="form-actions">
+            <button type="button" (click)="closeModal()">Reiniciar</button>
+            <button type="submit">Enviar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmación para Eliminar -->
+<div class="delete-modal" *ngIf="showDeleteModal">
+    <div class="delete-modal-content">
+      <div class="delete-modal-header">
+        <h2>Confirmación</h2>
+      </div>
+      <div class="delete-modal-body">
+        <p>¿Estás seguro de eliminar el producto <strong>{{ selectedProduct?.name }}</strong>?</p>
+      </div>
+      <div class="delete-modal-actions">
+        <button class="cancel-button" (click)="closeDeleteModal()">Cancelar</button>
+        <button class="confirm-button" (click)="confirmDelete()">Confirmar</button>
+      </div>
+    </div>
+  </div>
