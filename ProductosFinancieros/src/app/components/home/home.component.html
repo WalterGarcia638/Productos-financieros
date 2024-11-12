@@ -1,10 +1,9 @@
 <div class="container">
-    
     <div class="header">
-        <h1 class="title">BANCO</h1>
-        <button class="add-button" (click)="openModal()">Agregar</button>
-      </div>
-
+      <h1 class="title">BANCO</h1>
+      <button class="add-button" (click)="openModal()">Agregar</button>
+    </div>
+  
     <div class="search-container">
       <input
         type="text"
@@ -29,14 +28,22 @@
         <tbody>
           <tr *ngFor="let product of filteredProducts">
             <td>
-              <img [src]="product.logo" alt="{{ product.name }}" class="logo-img">
+              <img [src]="product.logo" alt="{{ product.name }}" class="logo-img" />
             </td>
             <td>{{ product.name }}</td>
             <td>{{ product.description }}</td>
             <td>{{ product.date_release | date: 'dd/MM/yyyy' }}</td>
             <td>{{ product.date_revision | date: 'dd/MM/yyyy' }}</td>
-            <td><button (click)="openEditModal(product)"  class="edit-button">Editar</button></td>
-            <td><button (click)="openDeleteModal(product)" class="delete-button">Eliminar</button></td>
+            <td>
+              <button (click)="openEditModal(product)" class="edit-button">
+                Editar
+              </button>
+            </td>
+            <td>
+              <button (click)="openDeleteModal(product)" class="delete-button">
+                Eliminar
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -50,7 +57,7 @@
       </select>
     </div>
   </div>
-
+  
   <!-- Modal personalizado -->
   <div class="custom-modal" *ngIf="showModal">
     <div class="modal-content">
@@ -59,49 +66,166 @@
         <button class="close-button" (click)="closeModal()">✖</button>
       </div>
       <div class="modal-body">
-        <form (ngSubmit)="submitForm()">
+        <form #productForm="ngForm" (ngSubmit)="submitForm()" novalidate>
           <div class="form-group">
             <label for="id">ID</label>
-            <input type="text" id="id" [(ngModel)]="product.id" name="id" required />
-            <span *ngIf="!product.id">ID no válido!</span>
+            <input
+              type="text"
+              id="id"
+              [(ngModel)]="product.id"
+              name="id"
+              required
+              minlength="3"
+              maxlength="10"
+              #id="ngModel"
+              (blur)="checkIdExists()"
+            />
+            <div *ngIf="id.invalid && (id.dirty || id.touched)">
+              <div *ngIf="id.errors?.['required']">El ID es requerido.</div>
+              <div *ngIf="id.errors?.['minlength']">
+                El ID debe tener al menos 3 caracteres.
+              </div>
+              <div *ngIf="id.errors?.['maxlength']">
+                El ID no debe exceder 10 caracteres.
+              </div>
+            </div>
+            <div *ngIf="idExists && !id.errors">El ID ya existe.</div>
           </div>
+  
           <div class="form-group">
             <label for="name">Nombre</label>
-            <input type="text" id="name" [(ngModel)]="product.name" name="name" required />
+            <input
+              type="text"
+              id="name"
+              [(ngModel)]="product.name"
+              name="name"
+              required
+              minlength="5"
+              maxlength="100"
+              #name="ngModel"
+            />
+            <div *ngIf="name.invalid && (name.dirty || name.touched)">
+              <div *ngIf="name.errors?.['required']">El nombre es requerido.</div>
+              <div *ngIf="name.errors?.['minlength']">
+                El nombre debe tener al menos 5 caracteres.
+              </div>
+              <div *ngIf="name.errors?.['maxlength']">
+                El nombre no debe exceder 100 caracteres.
+              </div>
+            </div>
           </div>
+  
           <div class="form-group">
             <label for="description">Descripción</label>
-            <input type="text" id="description" [(ngModel)]="product.description" name="description" required />
+            <input
+              type="text"
+              id="description"
+              [(ngModel)]="product.description"
+              name="description"
+              required
+              minlength="10"
+              maxlength="200"
+              #description="ngModel"
+            />
+            <div *ngIf="description.invalid && (description.dirty || description.touched)">
+              <div *ngIf="description.errors?.['required']">
+                La descripción es requerida.
+              </div>
+              <div *ngIf="description.errors?.['minlength']">
+                La descripción debe tener al menos 10 caracteres.
+              </div>
+              <div *ngIf="description.errors?.['maxlength']">
+                La descripción no debe exceder 200 caracteres.
+              </div>
+            </div>
           </div>
+  
           <div class="form-group">
             <label for="logo">Logo (URL)</label>
-            <input type="text" id="logo" [(ngModel)]="product.logo" name="logo" required />
+            <input
+              type="text"
+              id="logo"
+              [(ngModel)]="product.logo"
+              name="logo"
+              required
+              #logo="ngModel"
+            />
+            <div *ngIf="logo.invalid && (logo.dirty || logo.touched)">
+              <div *ngIf="logo.errors?.['required']">El logo es requerido.</div>
+            </div>
           </div>
+  
           <div class="form-group">
             <label for="date_release">Fecha Liberación</label>
-            <input type="date" id="date_release" [(ngModel)]="product.date_release" name="date_release" required />
+            <input
+              type="date"
+              id="date_release"
+              [(ngModel)]="product.date_release"
+              name="date_release"
+              required
+              #dateRelease="ngModel"
+              (change)="validateReleaseDate(); validateRevisionDate()"
+            />
+            <div *ngIf="dateRelease.invalid && (dateRelease.dirty || dateRelease.touched)">
+              <div *ngIf="dateRelease.errors?.['required']">
+                La fecha de liberación es requerida.
+              </div>
+            </div>
+            <div *ngIf="invalidReleaseDate">
+              La fecha debe ser igual o mayor a la fecha actual.
+            </div>
           </div>
+  
           <div class="form-group">
             <label for="date_revision">Fecha Revisión</label>
-            <input type="date" id="date_revision" [(ngModel)]="product.date_revision" name="date_revision" required />
+            <input
+              type="date"
+              id="date_revision"
+              [(ngModel)]="product.date_revision"
+              name="date_revision"
+              required
+              #dateRevision="ngModel"
+              (change)="validateRevisionDate()"
+            />
+            <div *ngIf="dateRevision.invalid && (dateRevision.dirty || dateRevision.touched)">
+              <div *ngIf="dateRevision.errors?.['required']">
+                La fecha de revisión es requerida.
+              </div>
+            </div>
+            <div *ngIf="invalidRevisionDate">
+              La fecha debe ser exactamente un año posterior a la fecha de liberación.
+            </div>
           </div>
+  
           <div class="form-actions">
-            <button type="button" (click)="closeModal()">Reiniciar</button>
-            <button type="submit">Enviar</button>
+            <button type="button" (click)="resetForm()">Reiniciar</button>
+            <button
+              type="submit"
+              [disabled]="
+                !productForm.form.valid ||
+                idExists ||
+                invalidReleaseDate ||
+                invalidRevisionDate
+              "
+            >
+              Enviar
+            </button>
           </div>
         </form>
       </div>
     </div>
   </div>
-
+  
   <!-- Modal de Confirmación para Eliminar -->
-<div class="delete-modal" *ngIf="showDeleteModal">
+  <div class="delete-modal" *ngIf="showDeleteModal">
     <div class="delete-modal-content">
       <div class="delete-modal-header">
         <h2>Confirmación</h2>
       </div>
       <div class="delete-modal-body">
-        <p>¿Estás seguro de eliminar el producto <strong>{{ selectedProduct?.name }}</strong>?</p>
+        <p>
+          ¿Estás seguro de eliminar el producto <strong>{{ selectedProduct?.name }}</strong>?
+        </p>
       </div>
       <div class="delete-modal-actions">
         <button class="cancel-button" (click)="closeDeleteModal()">Cancelar</button>
@@ -109,9 +233,9 @@
       </div>
     </div>
   </div>
-
+  
   <!-- Modal para Editar Producto -->
-<div class="edit-modal" *ngIf="showEditModal">
+  <div class="edit-modal" *ngIf="showEditModal">
     <div class="edit-modal-content">
       <div class="edit-modal-header">
         <h2>Editar Producto</h2>
@@ -129,7 +253,12 @@
           </div>
           <div class="form-group">
             <label>Descripción</label>
-            <input type="text" [(ngModel)]="editProduct.description" name="description" required />
+            <input
+              type="text"
+              [(ngModel)]="editProduct.description"
+              name="description"
+              required
+            />
           </div>
           <div class="form-group">
             <label>Logo (URL)</label>
@@ -137,11 +266,21 @@
           </div>
           <div class="form-group">
             <label>Fecha Liberación</label>
-            <input type="date" [(ngModel)]="editProduct.date_release" name="date_release" required />
+            <input
+              type="date"
+              [(ngModel)]="editProduct.date_release"
+              name="date_release"
+              required
+            />
           </div>
           <div class="form-group">
             <label>Fecha Revisión</label>
-            <input type="date" [(ngModel)]="editProduct.date_revision" name="date_revision" required />
+            <input
+              type="date"
+              [(ngModel)]="editProduct.date_revision"
+              name="date_revision"
+              required
+            />
           </div>
           <div class="form-actions">
             <button type="button" (click)="closeEditModal()">Cancelar</button>

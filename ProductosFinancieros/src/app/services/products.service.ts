@@ -33,4 +33,13 @@ export class ProductsService {
   updateProduct(id: string, product: ProductInterface): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, product);
   }
+
+  verifyIdExists(id: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/verification/${id}`);
+  }
+
+  // Método para obtener un producto por ID (opcional, si lo necesitas)
+  getProductById(id: string): Observable<ProductInterface> {
+    return this.http.get<ProductInterface>(`${this.apiUrl}/${id}`);
+  }
 }
