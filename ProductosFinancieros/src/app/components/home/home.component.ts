@@ -18,6 +18,17 @@ export class HomeComponent implements OnInit {
   showModal: boolean = false;
   showDeleteModal: boolean = false;
   selectedProduct: ProductInterface | null = null;
+  showEditModal: boolean = false;
+
+  editProduct: ProductInterface = {
+    id: '',
+    name: '',
+    description: '',
+    logo: '',
+    date_release: new Date(),
+    date_revision: new Date(),
+  };
+
   product: ProductInterface = {
     id: '',
     name: '',
@@ -120,6 +131,45 @@ export class HomeComponent implements OnInit {
       });
     }
   }
+
+  // Abrir modal de edición con datos del producto seleccionado
+  openEditModal(product: ProductInterface) {
+    this.editProduct = { ...product };
+    this.showEditModal = true;
+  }
+
+  // Cerrar modal de edición
+  closeEditModal() {
+    this.showEditModal = false;
+    this.resetEditForm();
+  }
+
+  // Reiniciar formulario de edición
+  resetEditForm() {
+    this.editProduct = {
+      id: '',
+      name: '',
+      description: '',
+      logo: '',
+      date_release: new Date(),
+      date_revision: new Date(),
+    };
+  }
+
+  // Enviar formulario de edición
+  submitEditForm() {
+    this.productService.updateProduct(this.editProduct.id, this.editProduct).subscribe({
+      next: (response) => {
+        console.log('Producto actualizado:', response);
+        this.loadProducts();
+        this.closeEditModal();
+      },
+      error: (error) => {
+        console.error('Error al actualizar producto:', error);
+      }
+    });
+  }
+  
 
 
 
